@@ -3,24 +3,13 @@ package core.basesyntax;
 import java.util.List;
 
 public class MyLinkedList<T> implements MyLinkedListInterface<T> {
-
-    private static class Node<T> {
-        private T value;
-        private Node<T> prev;
-        private Node<T> next;
-
-        Node(T value) {
-            this.value = value;
-        }
-    }
-
     private Node<T> head;
     private Node<T> tail;
     private int size;
 
     @Override
     public void add(T value) {
-        Node<T> newNode = new Node<T>(value);
+        Node<T> newNode = new Node<>(value, tail, null);
         if (head == null) {
             head = newNode;
             tail = newNode;
@@ -34,14 +23,12 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
 
     @Override
     public void add(T value, int index) {
-
         if (index < 0 || index > size) {
             throw new IndexOutOfBoundsException("Index: " + index);
         }
 
-        Node<T> newNode = new Node<T>(value);
         if (index == 0) {
-            newNode.next = head;
+            Node<T> newNode = new Node<>(value, null, head);
             if (head != null) {
                 head.prev = newNode;
             } else {
@@ -52,27 +39,25 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
             add(value);
             return;
         } else {
+            Node<T> current;
             if (index < size / 2) {
-                Node<T> current = head;
+                current = head;
                 for (int i = 0; i < index; i++) {
                     current = current.next;
                 }
-                Node<T> prev = current.prev;
-                newNode.prev = prev;
-                newNode.next = current;
-                prev.next = newNode;
-                current.prev = newNode;
             } else {
-                Node<T> current = tail;
+                current = tail;
                 for (int i = size - 1; i > index; i--) {
                     current = current.prev;
                 }
-                Node<T> prev = current.prev;
-                newNode.prev = prev;
-                newNode.next = current;
-                prev.next = newNode;
-                current.prev = newNode;
             }
+            Node<T> newNode = new Node<>(value, current.prev, current);
+            if (current.prev != null) {
+                current.prev.next = newNode;
+            } else {
+                head = newNode;
+            }
+            current.prev = newNode;
         }
         size++;
     }
@@ -172,5 +157,17 @@ public class MyLinkedList<T> implements MyLinkedListInterface<T> {
         node.next = null;
         node.value = null;
         size--;
+    }
+
+    private class Node<T> {
+        private T value;
+        private Node<T> prev;
+        private Node<T> next;
+
+        Node(T value, Node<T> prev, Node<T> next) {
+            this.value = value;
+            this.prev = prev;
+            this.next = next;
+        }
     }
 }
